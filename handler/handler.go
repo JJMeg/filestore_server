@@ -102,7 +102,52 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//加上头让浏览器当成文件进行下载
-	w.Header().Set("Content-Type","application/octect-stream")
-	w.Header().Set("content-disposition","attachment;filename=\""+fMeta.FileName+"\"")
+	w.Header().Set("Content-Type", "application/octect-stream")
+	w.Header().Set("content-disposition", "attachment;filename=\""+fMeta.FileName+"\"")
 	w.Write(data)
+}
+
+//更新元信息接口
+func FileUpdateMetaHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	opType := r.Form.Get("op")
+	file_hash := r.Form.Get("filehash")
+	new_fname := r.Form.Get("filename")
+
+	if opType != "0" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	curFileMeta := meta.GetFileMeta(file_hash)
+	curFileMeta.FileName = new_fname
+	meta.UpdateFileMeta(curFileMeta)
+
+	w.WriteHeader(http.StatusOK)
+	data, err := json.Marshal(curFileMeta)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
+}
+
+//删除文件
+func FileDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	file_hash := r.Form.Get("filehash")
+	meta.RemoveFileMeta(file_hash)
+
+	//做真正的物理文件删除
+	fMeta := meta.GetFileMeta(file_hash)
+
+	os.Remove(fMeta.Location)
+	w.WriteHeader(http.StatusOK)
 }

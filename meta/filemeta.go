@@ -11,17 +11,21 @@ type FileMeta struct {
 
 var fileMetas map[string]FileMeta
 
-func init()  {
+func init() {
 	fileMetas = make(map[string]FileMeta)
 }
 
 //添加fileMeta内的元素
-func UpdateFileMeta(fmeta FileMeta)  {
+func UpdateFileMeta(fmeta FileMeta) {
 	fileMetas[fmeta.FileSha1] = fmeta
 }
 
 //获取文件元信息对象
-func GetFileMeta(fileSha1 string) FileMeta  {
+func GetFileMeta(fileSha1 string) FileMeta {
 	return fileMetas[fileSha1]
 }
 
+//删除文件元信息对象
+func RemoveFileMeta(filesha1 string) {
+	delete(fileMetas, filesha1)
+}
