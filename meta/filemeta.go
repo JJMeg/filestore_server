@@ -25,7 +25,7 @@ func UpdateFileMeta(fmeta FileMeta) {
 	fileMetas[fmeta.FileSha1] = fmeta
 }
 
-// 新增meta到mysql中
+// 新增/更新meta到mysql中
 func UpdateFileMetaDB(fmeta FileMeta) bool {
 	success := db.OnFileUploadFinished(fmeta.FileSha1, fmeta.FileName, fmeta.FileSize, fmeta.Location)
 	fmt.Printf("upload to db success: ", success)
