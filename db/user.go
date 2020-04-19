@@ -74,3 +74,31 @@ func UpdateToken(username, token string) bool {
 	}
 	return false
 }
+
+type User struct {
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Phone        string `json:"phone"`
+	SignupAt     string `json:"signup_at"`
+	LastActiveAt string `json:"last_active_at"`
+	Status       int    `json:"status"`
+}
+
+func GetUserInfo(username string) (User, error) {
+	user := User{}
+	stmt, err := mysql.DBConn().Prepare(
+		"select user_name,signup_at from tbl_user where user_name=? limit 1")
+	if err != nil {
+		fmt.Printf("Failed to prepare statement, err: %v", err.Error())
+		return user, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(username).Scan(&user.Username, &user.SignupAt)
+	if err != nil {
+		fmt.Printf("Failed to update token, err: %v", err.Error())
+		return user, err
+	}
+
+	return user, nil
+}

@@ -78,7 +78,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//  3. 登陆成功后重定向到首页
-	w.Header().Set("Content-Type", "text/css")
 	//w.Write([]byte("http://" + r.Host + "/static/view/home.html"))
 	resp := util.RespMsg{
 		Code: 0,
@@ -97,6 +96,41 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	username := r.Form.Get("username")
+	//token := r.Form.Get("token")
+	//fmt.Println("token: ", token)
+
+	// 验证token
+	//if !isTokenValid(token) {
+	//	w.WriteHeader(http.StatusForbidden)
+	//	return
+	//}
+
+	//	查询用户信息
+	user, err := db.GetUserInfo(username)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	resp := util.RespMsg{
+		Code: 0,
+		Msg:  "OK",
+		Data: user,
+	}
+	w.Write(resp.JSONBytes())
+}
+
+func isTokenValid(token string) bool {
+	//判断token的时效性，是否过期
+	//从数据库查到token，对比是否一致
+	if len(token) != 40 {
+		return false
+	}
+	return true
+}
 func genToken(username string) string {
 	//	40位字符：md5(username + timestamp + token_salt) + timestamp[:8]
 	ts := fmt.Sprintf("%x", time.Now().Unix())
