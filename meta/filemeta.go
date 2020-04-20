@@ -56,3 +56,23 @@ func GetFileMeta(fileSha1 string) FileMeta {
 func RemoveFileMeta(filesha1 string) {
 	delete(fileMetas, filesha1)
 }
+
+// 批量获取文件元信息
+func GetLastFileMetasDB(limit int) ([]FileMeta, error) {
+	tfiles, err := db.GetFileMetaList(limit)
+	if err != nil {
+		return nil, err
+	}
+
+	tfilesm := make([]FileMeta, len(tfiles))
+	for i := 0; i < len(tfilesm); i++ {
+		tfilesm[i] = FileMeta{
+			FileSha1: tfiles[i].FileHash,
+			FileName: tfiles[i].FileName.String,
+			FileSize: tfiles[i].FileSize.Int64,
+			Location: tfiles[i].FileAddr.String,
+		}
+	}
+
+	return tfilesm, nil
+}

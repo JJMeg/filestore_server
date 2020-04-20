@@ -38,3 +38,17 @@ CREATE TABLE `tbl_user_token`(
   PRIMARY KEY(`id`),
   UNIQUE KEY `idx_username` (`user_name`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `tbl_user_file`(
+  `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `user_name` varchar(64) NOT NULL  COMMENT '用户名',
+  `file_sha1` varchar(256) NOT NULL DEFAULT '' COMMENT '文件hash',
+  `file_size` bigint(20) DEFAULT '0' COMMENT '文件大小',
+  `file_name` varchar(256) NOT NULL  DEFAULT '' COMMENT '文件名',
+  `upload_at` datetime DEFAULT current_timestamp COMMENT '上传时间',
+  `last_update` datetime DEFAULT current_timestamp on update current_timestamp() COMMENT '最后修改时间戳',
+  `status` int(11) NOT NULL DEFAULT '0' COMMENT '文件状态 0可用1禁用2已删除',
+  UNIQUE KEY `idx_user_file` (`user_name`,`file_sha1`),
+  KEY `idx_status` (`status`),
+  KEY `idx_user_id` (`user_name`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

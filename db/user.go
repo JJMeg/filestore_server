@@ -76,10 +76,10 @@ func UpdateToken(username, token string) bool {
 }
 
 type User struct {
-	Username     string `json:"username"`
+	Username     string
 	Email        string `json:"email"`
 	Phone        string `json:"phone"`
-	SignupAt     string `json:"signup_at"`
+	SignupAt     string
 	LastActiveAt string `json:"last_active_at"`
 	Status       int    `json:"status"`
 }

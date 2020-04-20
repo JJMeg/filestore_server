@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"filestore_server/db"
 	"filestore_server/meta"
 	"filestore_server/util"
 	"fmt"
@@ -9,8 +10,31 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
+
+// FileQueryHandler: 批量查询文件元信息
+func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
+	username := r.Form.Get("username")
+	//fileMetas, _ := meta.GetLastFileMetasDB(limitCnt)
+	userFiles, err := db.QueryUserFileMetas(username, limitCnt)
+	if err != nil {
+		fmt.Println("db.QueryUserFileMetas: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(userFiles)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
+}
 
 // 用于向用户返回数据的对象，用于接收用户请求的请求指针
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +47,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, string(data))
 
 	} else if r.Method == "POST" {
+		fmt.Println("Here into file upload")
 		//	接收文件流及存储到本地目录
 		file, head, err := r.FormFile("file")
 		if err != nil {
@@ -57,8 +82,17 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		fileMeta.FileSha1 = util.FileSha1(newFile)
 		meta.UpdateFileMetaDB(fileMeta)
 
-		//转入另一个
-		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
+		//TODO: 更新用户文件表记录
+		r.ParseForm()
+		username := r.Form.Get("username")
+		fmt.Println("here username:", username)
+		suc := db.OnUserFileUploadFinished(username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize)
+		if suc {
+			http.Redirect(w, r, "/static/view/home.html", http.StatusFound)
+		} else {
+			w.Write([]byte("Upload failed"))
+			return
+		}
 	}
 }
 

@@ -62,3 +62,35 @@ func GetFileMeta(filehash string) (*TableFile, error) {
 	}
 	return &tfile, nil
 }
+
+// 批量获取文件元信息
+func GetFileMetaList(limit int) ([]TableFile, error) {
+	stmt, err := mysql.DBConn().Prepare(
+		"select file_sha1,file_addr,file_name,file_size from tbl_file where status = 1 limit ?")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(limit)
+	if err != nil {
+		fmt.Printf(err.Error())
+		return nil, err
+	}
+
+	columns, _ := rows.Columns()
+	values := make([]sql.RawBytes, len(columns))
+	var tfiles []TableFile
+
+	for i := 0; i < len(values) && rows.Next(); i++ {
+		tfile := TableFile{}
+		err = rows.Scan(&tfile.FileHash, &tfile.FileAddr, &tfile.FileName, &tfile.FileSize)
+		if err != nil {
+			break
+		}
+		tfiles = append(tfiles, tfile)
+	}
+
+	return tfiles, nil
+}
