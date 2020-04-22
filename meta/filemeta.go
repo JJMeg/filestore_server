@@ -3,6 +3,7 @@ package meta
 import (
 	"filestore_server/db"
 	"fmt"
+	"strings"
 )
 
 //文件元信息结构
@@ -33,18 +34,23 @@ func UpdateFileMetaDB(fmeta FileMeta) bool {
 }
 
 // 从mysql获取文件元信息
-func GetFileMetaDB(filesha1 string) (FileMeta, error) {
+func GetFileMetaDB(filesha1 string) (*FileMeta, error) {
 	tfile, err := db.GetFileMeta(filesha1)
 	if err != nil {
-		return FileMeta{}, err
+		if strings.Contains(err.Error(), "no rows") {
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	}
+
 	fmeta := FileMeta{
 		FileSize: tfile.FileSize.Int64,
 		FileSha1: tfile.FileHash,
 		FileName: tfile.FileName.String,
 		Location: tfile.FileAddr.String,
 	}
-	return fmeta, nil
+	return &fmeta, nil
 }
 
 //获取文件元信息对象

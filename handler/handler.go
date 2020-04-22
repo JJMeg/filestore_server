@@ -2,9 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"filestore_server/db"
-	"filestore_server/meta"
-	"filestore_server/util"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,7 +9,55 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"filestore_server/db"
+	"filestore_server/meta"
+	"filestore_server/util"
 )
+
+// TryFastUploadHandler: 尝试秒传接口
+func TryFastUploadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// 1.解析请求参数
+	username := r.Form.Get("username")
+	filehash := r.Form.Get("filehash")
+	filename := r.Form.Get("filename")
+	filesize, _ := strconv.Atoi(r.Form.Get("filesize"))
+
+	// 2. 从文件表中查询有相同hash的文件记录
+	fileMeta, err := meta.GetFileMetaDB(filehash)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// 3. 查不到记录则返回秒传失败
+	if fileMeta == nil {
+		resp := util.RespMsg{
+			Code: -1,
+			Msg:  "妙传失败，请访问普通上传接口",
+		}
+		w.Write(resp.JSONBytes())
+		return
+	}
+
+	// 4. 上传过则姜文件信息写入用户文件表，返回成功
+	if suc := db.OnUserFileUploadFinished(username, filehash, filename, int64(filesize)); suc {
+		resp := util.RespMsg{
+			Code: 0,
+			Msg:  "秒传成功",
+		}
+		w.Write(resp.JSONBytes())
+		return
+	} else {
+		resp := util.RespMsg{
+			Code: -2,
+			Msg:  "秒传失败，请稍后重试",
+		}
+		w.Write(resp.JSONBytes())
+		return
+	}
+}
 
 // FileQueryHandler: 批量查询文件元信息
 func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,12 +157,16 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := json.Marshal(fileMeta)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	if fileMeta != nil {
+		data, err := json.Marshal(fileMeta)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(data)
+	} else {
+		w.Write([]byte(`{"code":-1,"msg":"no such file"}`))
 	}
-	w.Write(data)
 }
 
 //文件下载
