@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"filestore_server/db"
 	"fmt"
-	"github.com/garyburd/redigo/redis"
 	"math"
 	"net/http"
 	"os"
@@ -12,8 +10,11 @@ import (
 	"strings"
 	"time"
 
-	rPool "filestore_server/cache/redis"
-	"filestore_server/util"
+	"github.com/garyburd/redigo/redis"
+
+	rPool "github.com/JJMeg/filestore_server/cache/redis"
+	"github.com/JJMeg/filestore_server/db"
+	"github.com/JJMeg/filestore_server/util"
 )
 
 // MultipartUploadInfo: 初始化信息

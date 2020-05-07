@@ -1,9 +1,10 @@
 package meta
 
 import (
-	"filestore_server/db"
 	"fmt"
 	"strings"
+
+	"github.com/JJMeg/filestore_server/db"
 )
 
 //文件元信息结构

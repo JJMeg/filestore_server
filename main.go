@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"filestore_server/handler"
+	"github.com/JJMeg/filestore_server/handler"
 )
 
 func main() {

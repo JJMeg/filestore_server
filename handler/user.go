@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"filestore_server/db"
-	"filestore_server/util"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/JJMeg/filestore_server/db"
+	"github.com/JJMeg/filestore_server/util"
 )
 
 const (

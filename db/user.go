@@ -1,8 +1,8 @@
 package db
 
 import (
-	"filestore_server/db/mysql"
 	"fmt"
+	"github.com/JJMeg/filestore_server/db/mysql"
 )
 
 // UserSignUp: 通过用户名及密码注册用户

@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"filestore_server/db/mysql"
 	"fmt"
+	"github.com/JJMeg/filestore_server/db/mysql"
 )
 
 //文件上传完成，保存meta新纪录

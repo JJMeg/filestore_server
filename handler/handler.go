@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"filestore_server/db"
-	"filestore_server/meta"
-	"filestore_server/util"
+	"github.com/JJMeg/filestore_server/db"
+	"github.com/JJMeg/filestore_server/meta"
+	"github.com/JJMeg/filestore_server/util"
 )
 
 // TryFastUploadHandler: 尝试秒传接口
