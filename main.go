@@ -1,9 +1,10 @@
 package main
 
 import (
-	"filestore_server/handler"
 	"fmt"
 	"net/http"
+
+	"filestore_server/handler"
 )
 
 func main() {
@@ -18,6 +19,12 @@ func main() {
 	http.HandleFunc("/file/query", handler.FileQueryHandler)
 	http.HandleFunc("/file/fastupload", handler.HTTPInterceptor(handler.TryFastUploadHandler))
 
+	// 文件分块上传接口
+	http.HandleFunc("/file/mpupload/init", handler.HTTPInterceptor(handler.InitiateMultipartUploadHandler))
+	http.HandleFunc("/file/mpupload/uppart", handler.HTTPInterceptor(handler.UploadPartHandler))
+	http.HandleFunc("/file/mpupload/complete", handler.HTTPInterceptor(handler.CompleteUploadHander))
+
+	// 用户相关接口
 	http.HandleFunc("/", handler.SignInHandler)
 	http.HandleFunc("/user/signup", handler.SignupHandler)
 	http.HandleFunc("/user/signin", handler.SignInHandler)
